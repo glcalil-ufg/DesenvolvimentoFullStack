@@ -1,9 +1,11 @@
 package br.ufg.inf.fsspring.ctrl;
 
 import java.util.List;
+import java.util.ArrayList;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,6 +18,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import br.ufg.inf.fsspring.business.HospedeBusiness;
 import br.ufg.inf.fsspring.entities.Hospede;
+import br.ufg.inf.fsspring.exceptions.HospedeException;
+import br.ufg.inf.fsspring.Messages;
 
 @RestController
 @RequestMapping(value="hospedes")
@@ -26,26 +30,74 @@ public class HospedeCtrl {
 	
 	@GetMapping
 	public ResponseEntity<List<Hospede>> findAll(){
-		List<Hospede> list = business.findAll();
-		return ResponseEntity.ok().body(list);
+		HttpHeaders headers = new HttpHeaders();
+		HttpStatus status = HttpStatus.OK;
+		List<Hospede> list = new ArrayList<Hospede>();
+		try {
+			list = business.findAll();
+			if(list.size() == 0) {
+				headers.add("message", Messages.get("0117"));
+			}
+		}catch (Exception e) {
+			status = HttpStatus.BAD_REQUEST;
+			headers.add("message", Messages.get("0002"));
+		}
+		return new ResponseEntity<List<Hospede>>(list, headers, status);
 	}
 	
 	@GetMapping("/{id}")
 	public ResponseEntity<Hospede> findById(@PathVariable Integer id){
-		Hospede retorno = business.findById(id);
-		return ResponseEntity.ok(retorno);
+		Hospede retorno = new Hospede();
+
+		HttpHeaders headers = new HttpHeaders();
+		HttpStatus status = HttpStatus.OK;
+		try {
+			retorno = business.findById(id);
+			if(retorno == null) {
+				headers.add("message", Messages.get("0117"));
+			}
+		}catch (Exception e) {
+			status = HttpStatus.BAD_REQUEST;
+			headers.add("message", Messages.get("0002"));
+		}
+		return new ResponseEntity<Hospede>(retorno, headers, status);
 	}
 	
 	@PostMapping
-	public ResponseEntity<Hospede> insert(@RequestBody Hospede Hospede){
-		Hospede = business.insert(Hospede);
-		return ResponseEntity.ok(Hospede);
+	public ResponseEntity<Hospede> insert(@RequestBody Hospede hospede){
+		HttpHeaders headers = new HttpHeaders();
+		HttpStatus status = HttpStatus.CREATED;
+
+		try {
+			hospede = business.insert(hospede);
+			headers.add("message", Messages.get("0111"));
+		} catch (HospedeException e) {
+			headers.add("message", Messages.get(e.getMessage()));
+			status = HttpStatus.BAD_REQUEST;
+		} catch (Exception e) {
+			headers.add("message", Messages.get("0112"));
+			status = HttpStatus.INTERNAL_SERVER_ERROR;
+		}
+		return new ResponseEntity<Hospede>(hospede, headers, status);
 	}
 	
 	@PutMapping
-	public ResponseEntity<Hospede> update(@RequestBody Hospede Hospede){
-		Hospede = business.update(Hospede);
-		return ResponseEntity.ok(Hospede);
+	public ResponseEntity<Hospede> update(@RequestBody Hospede hospede){
+		HttpHeaders headers = new HttpHeaders();
+		HttpStatus status = HttpStatus.OK;
+
+		try {
+			hospede = business.update(hospede);
+			headers.add("message", Messages.get("0123"));
+		} catch (HospedeException e) {
+			headers.add("message", Messages.get(e.getMessage()));
+			status = HttpStatus.BAD_REQUEST;
+		} catch (Exception e) {
+			headers.add("message", Messages.get("0124"));
+			status = HttpStatus.INTERNAL_SERVER_ERROR;
+		}
+		return new ResponseEntity<Hospede>(hospede, headers, status);
+
 	}
 	
 	@DeleteMapping("/{id}")

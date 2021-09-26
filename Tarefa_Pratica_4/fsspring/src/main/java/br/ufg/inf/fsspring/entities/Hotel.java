@@ -36,6 +36,7 @@ public class Hotel {
 		this.qtdEstrelas = qtdEstrelas;
 	}
 
+
 	public Integer getIdHotel() {
 		return idHotel;
 	}

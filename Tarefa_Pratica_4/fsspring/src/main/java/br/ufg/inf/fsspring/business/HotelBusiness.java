@@ -4,7 +4,12 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.data.web.SpringDataWebProperties.Pageable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Service;
+
 
 import br.ufg.inf.fsspring.entities.Hotel;
 import br.ufg.inf.fsspring.repositories.HotelRepository;
@@ -14,11 +19,16 @@ import br.ufg.inf.fsspring.exceptions.HotelException;
 public class HotelBusiness {
 	
 	@Autowired
-	private HotelRepository repository;
+	public HotelRepository repository;
 	
 	public List<Hotel> findAll(){
 		return repository.findAll();		
 	}
+
+	public Page<Hotel> paginator(Pageable pageable){
+		return repository.findAll(pageable);		
+	}
+
 
 	public List<Hotel> findName(String str){
 		return repository.findByNmHotel(str);

@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.data.web.SpringDataWebProperties.Pageable;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
 import br.ufg.inf.fsspring.entities.Hospede;
@@ -37,6 +39,9 @@ public class HospedeBusiness {
 	public Hospede insert(Hospede hospede) throws HospedeException {
 		this.validaHospede(hospede);
 		return repository.save(hospede);
+	}
+	public Page<Hospede> paginator(Pageable pageable){
+		return repository.findAll(pageable);		
 	}
 	
 	public Hospede update(Hospede hospede) throws HospedeException {

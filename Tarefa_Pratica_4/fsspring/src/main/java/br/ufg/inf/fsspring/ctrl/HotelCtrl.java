@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.ArrayList;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.data.web.SpringDataWebProperties.Pageable;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import br.ufg.inf.fsspring.Messages;
 import br.ufg.inf.fsspring.business.HotelBusiness;
@@ -27,7 +30,8 @@ public class HotelCtrl {
 
 	@Autowired
 	private HotelBusiness business;
-	
+
+	@PreAuthorize("hasRole('ADMIN')")
 	@GetMapping
 	public ResponseEntity<List<Hotel>> findAll(){
 		HttpHeaders headers = new HttpHeaders();
@@ -45,6 +49,7 @@ public class HotelCtrl {
 		return new ResponseEntity<List<Hotel>>(list, headers, status);
 	}
 	
+	@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
 	@GetMapping("/{id}")
 	public ResponseEntity<Hotel> findById(@PathVariable Integer id){
 		Hotel retorno = new Hotel();
@@ -63,6 +68,7 @@ public class HotelCtrl {
 		return new ResponseEntity<Hotel>(retorno, headers, status);
 	}
 	
+	@PreAuthorize("hasRole('ADMIN')")
 	@PostMapping
 	public ResponseEntity<Hotel> insert(@RequestBody Hotel hotel){
 		HttpHeaders headers = new HttpHeaders();
@@ -81,6 +87,7 @@ public class HotelCtrl {
 		return new ResponseEntity<Hotel>(hotel, headers, status);
 	}
 	
+	@PreAuthorize("hasRole('ADMIN')")
 	@PutMapping
 	public ResponseEntity<Hotel> update(@RequestBody Hotel hotel){
 		HttpHeaders headers = new HttpHeaders();
@@ -99,6 +106,7 @@ public class HotelCtrl {
 		return new ResponseEntity<Hotel>(hotel, headers, status);
 	}
 	
+	@PreAuthorize("hasRole('ADMIN')")
 	@DeleteMapping("/{id}")
 	public ResponseEntity<Void> delete(@PathVariable Integer id){
 		HttpHeaders headers = new HttpHeaders();
@@ -113,6 +121,8 @@ public class HotelCtrl {
 		return new ResponseEntity<Void>(headers, status);
 	}
 
+
+	@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
 	@GetMapping("/name/{str}")
 	public ResponseEntity<List<Hotel>> findByName(@PathVariable String str){
 		HttpHeaders headers = new HttpHeaders();
@@ -131,6 +141,7 @@ public class HotelCtrl {
 
 	}
 
+	@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
 	@GetMapping("/estrela/{qtd}")
 	public ResponseEntity<List<Hotel>> findQtdEstrelas(@PathVariable Integer qtd){
 		HttpHeaders headers = new HttpHeaders();
@@ -148,6 +159,24 @@ public class HotelCtrl {
 		return new ResponseEntity<List<Hotel>>(list, headers, status);
 
 
+	}
+	
+	@PreAuthorize("hasRole('ADMIN')")
+	@GetMapping("/paginator")
+	public ResponseEntity<Page<Hotel>> paginator(Pageable pageable){
+		HttpHeaders headers = new HttpHeaders();
+		HttpStatus status = HttpStatus.OK;
+		Page<Hotel> list = null;
+		try {
+			list = business.paginator(pageable);
+			if(list.getSize() == 0) {
+				headers.add("message", Messages.get("0107"));
+			}
+		}catch (Exception e) {
+			status = HttpStatus.BAD_REQUEST;
+			headers.add("message", Messages.get("0002"));
+		}
+		return new ResponseEntity<Page<Hotel>>(list, headers, status);
 	}
 	
 }

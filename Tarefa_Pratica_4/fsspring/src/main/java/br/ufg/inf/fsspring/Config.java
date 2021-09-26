@@ -14,6 +14,18 @@ import br.ufg.inf.fsspring.repositories.HotelRepository;
 import br.ufg.inf.fsspring.repositories.QuartoRepository;
 import br.ufg.inf.fsspring.repositories.HospedeRepository;
 import br.ufg.inf.fsspring.repositories.HospedagemRepository;
+import br.ufg.inf.fsspring.repositories.RegraRepository;
+import br.ufg.inf.fsspring.repositories.UsuarioRepository;
+import br.ufg.inf.fsspring.entities.Regra;
+import br.ufg.inf.fsspring.entities.Usuario;
+import org.springframework.security.crypto.factory.PasswordEncoderFactories;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
+
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
 @Configuration
 @Profile("dev")
@@ -27,8 +39,15 @@ public class Config  implements CommandLineRunner{
 
 	@Autowired
 	private HospedeRepository hospedeRepository;
+
 	@Autowired
 	private HospedagemRepository hospedagemRepository;
+
+	@Autowired
+	private UsuarioRepository usuarioRepository;
+
+	@Autowired
+	private RegraRepository regraRepository;
 	
 	@Override
 	public void run(String... args) throws Exception {
@@ -37,6 +56,18 @@ public class Config  implements CommandLineRunner{
 		/*
 		 * INSERIR NO MEU BANCO DE DADOS INFORMAÇÕES INICIAIS...
 		 * */
+
+		 String[] tipoH = new String[]{"Hotel","Pousada","Resort","Hostel","Pensao"};
+		 String[] nomeH = new String[]{"da rainha","do norte","the shiren","da ilha","da tia do guarda chuva"};
+		 String[] localH = new String[]{"KingsLand","Winterfel","Terra Média","Ilha Nublar","Raccon City"};
+
+		 for(int i = 0; i<50;i++){
+			 String nome = tipoH[new Random().nextInt(5)]+" "+nomeH[new Random().nextInt(5)];
+			 String local = localH[new Random().nextInt(5)];
+			 Integer estrelas = new Random().nextInt(5)+1;
+			 Hotel novoH = new Hotel(null,nome,local,estrelas);
+			 hoteRepository.save(novoH);
+		 }
 		
 		Hotel h1 = new Hotel(null, "Calderão Furado", "Beco Diagonal", 3);
 		Hotel h2 = new Hotel(null, "Bates Hotel", "White Pine Bay", 2);
@@ -79,6 +110,25 @@ public class Config  implements CommandLineRunner{
 		hp4 = hospedagemRepository.save(hp4);
 
 
+		Regra r1 = regraRepository.save(new Regra("ADMIN"));
+		Regra r2 = regraRepository.save(new Regra("USER"));
+		Regra r3 = regraRepository.save(new Regra("GUEST"));
+
+		List<Regra> regras = new ArrayList<Regra>();
+
+		regras.add(r1);
+		regras.add(r2);
+
+
+		PasswordEncoder encoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
+		Usuario usu1 = usuarioRepository.save(new Usuario("luiz", "Luiz Martins", encoder.encode("4321"), regras));
+
+		regras = new ArrayList<Regra>();
+
+		regras.add(r2);
+		regras.add(r3);
+
+		Usuario usu2 = usuarioRepository.save(new Usuario("jose", "Jose Silva", encoder.encode("asdf"), regras));
 
 
 	}

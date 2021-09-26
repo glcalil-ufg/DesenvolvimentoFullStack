@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.ArrayList;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.data.web.SpringDataWebProperties.Pageable;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import br.ufg.inf.fsspring.business.HospedagemBusiness;
 import br.ufg.inf.fsspring.entities.Hospedagem;
@@ -27,7 +30,9 @@ public class HospedagemCtrl {
 
 	@Autowired
 	private HospedagemBusiness business;
-	
+
+
+	@PreAuthorize("hasAnyRole( 'ADMIN')")
 	@GetMapping
 	public ResponseEntity<List<Hospedagem>> findAll(){
 		HttpHeaders headers = new HttpHeaders();
@@ -45,6 +50,7 @@ public class HospedagemCtrl {
 		return new ResponseEntity<List<Hospedagem>>(list, headers, status);
 	}
 	
+	@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
 	@GetMapping("/{id}")
 	public ResponseEntity<Hospedagem> findById(@PathVariable Integer id){
 		Hospedagem retorno = new Hospedagem();
@@ -63,6 +69,9 @@ public class HospedagemCtrl {
 		return new ResponseEntity<Hospedagem>(retorno, headers, status);
 	}
 	
+
+	@PreAuthorize("hasAnyRole('ADMIN')")
+
 	@PostMapping
 	public ResponseEntity<Hospedagem> insert(@RequestBody Hospedagem hospedagem){
 		HttpHeaders headers = new HttpHeaders();
@@ -81,6 +90,8 @@ public class HospedagemCtrl {
 		return new ResponseEntity<Hospedagem>(hospedagem, headers, status);
 	}
 	
+
+	@PreAuthorize("hasAnyRole('ADMIN')")
 	@PutMapping
 	public ResponseEntity<Hospedagem> update(@RequestBody Hospedagem hospedagem){
 		HttpHeaders headers = new HttpHeaders();
@@ -99,10 +110,29 @@ public class HospedagemCtrl {
 		return new ResponseEntity<Hospedagem>(hospedagem, headers, status);
 	}
 	
+	@PreAuthorize("hasAnyRole('ADMIN')")
 	@DeleteMapping("/{id}")
 	public ResponseEntity<Void> delete(@PathVariable Integer id){
 		business.delete(id);
 		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 	}
 	
+	
+	@PreAuthorize("hasRole('ADMIN')")
+	@GetMapping("/paginator")
+	public ResponseEntity<Page<Hospedagem>> paginator(Pageable pageable){
+		HttpHeaders headers = new HttpHeaders();
+		HttpStatus status = HttpStatus.OK;
+		Page<Hospedagem> list = null;
+		try {
+			list = business.paginator(pageable);
+			if(list.getSize() == 0) {
+				headers.add("message", Messages.get("0107"));
+			}
+		}catch (Exception e) {
+			status = HttpStatus.BAD_REQUEST;
+			headers.add("message", Messages.get("0002"));
+		}
+		return new ResponseEntity<Page<Hospedagem>>(list, headers, status);
+	}
 }

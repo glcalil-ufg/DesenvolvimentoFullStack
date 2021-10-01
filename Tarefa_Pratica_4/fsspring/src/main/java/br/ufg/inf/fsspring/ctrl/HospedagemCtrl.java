@@ -135,4 +135,4 @@ public class HospedagemCtrl {
 		}
 		return new ResponseEntity<Page<Hospedagem>>(list, headers, status);
 	}
-}
+} 

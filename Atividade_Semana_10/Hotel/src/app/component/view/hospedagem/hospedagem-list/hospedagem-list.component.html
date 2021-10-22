@@ -1,0 +1,47 @@
+<mat-card class="example-card mat-elevation-z3" >
+    <button mat-button color="primary" class="botton_new" routerLink="/Hospedagens/form">Nova hospedagem</button>
+    <mat-card-header>
+        <mat-card-title>Hospedagens</mat-card-title>
+        <mat-card-subtitle>Lista de Hospedagens Cadastradas</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+
+        <table mat-table [dataSource]="hospedagens" class="mat-elevation-z8">
+
+        
+            <ng-container matColumnDef="id">
+              <th mat-header-cell *matHeaderCellDef> #ID </th>
+              <td mat-cell *matCellDef="let hospedagem"> {{hospedagem.idHospedagem}} </td>
+            </ng-container>
+          
+            <!-- Name Column -->
+            <ng-container matColumnDef="dtCheckin">
+              <th mat-header-cell *matHeaderCellDef> Data de Checkin</th>
+              <td mat-cell *matCellDef="let hospedagem"> {{hospedagem.dtCheckin}} </td>
+            </ng-container>
+          
+            <!-- Weight Column -->
+            <ng-container matColumnDef="dtCheckout">
+              <th mat-header-cell *matHeaderCellDef> Data de Checkout </th>
+              <td mat-cell *matCellDef="let hospedagem"> {{hospedagem.dtCheckout}} </td>
+            </ng-container>
+          
+            <ng-container matColumnDef="acao">
+                <th mat-header-cell *matHeaderCellDef>Acões </th>
+                <td mat-cell *matCellDef="let hospedagem">
+                    <a routerLink="/Hospedagens/{{hospedagem.idhospedagem}}" class="edit">
+                        <button mat-raised-button color="primary"><i class="material-icons">edit</i></button>
+                    </a>
+                    <a>
+                        <button mat-raised-button color="warn" (click)="excluir(hospedagem)"><i class="material-icons">delete</i></button>
+                    </a>
+                </td>
+              </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+          </table>
+
+
+    </mat-card-content>
+</mat-card>

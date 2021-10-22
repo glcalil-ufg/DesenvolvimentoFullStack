@@ -1,0 +1,20 @@
+<mat-card>
+    <mat-card-title>{{titulo}}</mat-card-title>
+    <form>
+        <mat-form-field>
+            <input matInput placeholder="Data de Checkin" name="dtCheckin" [(ngModel)]="hospedagem.dtCheckin">
+        </mat-form-field>
+        <mat-form-field>
+            <input matInput placeholder="Data de Checkout" name="dtCheckout" [(ngModel)]="hospedagem.dtCheckout">
+        </mat-form-field>
+        <mat-form-field>
+            <input matInput placeholder="Codigo do Quarto" name="idQuarto" [(ngModel)]="hospedagem.idQuarto">
+        </mat-form-field>
+        <mat-form-field>
+            <input matInput placeholder="Codigo do Hospede" name="idHospede" [(ngModel)]="hospedagem.idHospede">
+        </mat-form-field>
+    </form>
+
+    <button mat-raised-button color="primary" (click)="salvar()">Salvar</button>
+    <button mat-raised-button color="warn" routerLink="/hospedagem/">Cancelar</button>
+</mat-card>
